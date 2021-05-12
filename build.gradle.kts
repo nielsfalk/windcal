@@ -16,6 +16,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-jackson:$ktor_version")
+    implementation("org.mnode.ical4j:ical4j:3.0.25")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.3")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")

@@ -7,6 +7,8 @@ import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.Instant
 
 private const val baseUrl = "https://api.therainery.com/"
@@ -71,4 +73,4 @@ data class ForecastedHour(
     val windSpeed: Float,//	Speed of wind at 10m above sea level	m/s
 )
 
-fun Float.ms2kts() = this * 1.944
+fun Float.ms2kts() = BigDecimal(this * 1.944).setScale(2, RoundingMode.HALF_UP)

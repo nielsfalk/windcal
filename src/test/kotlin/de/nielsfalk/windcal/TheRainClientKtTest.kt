@@ -21,33 +21,33 @@ class TheRainClientKtTest {
 
         expectThat(forecast).isEqualTo(aForecast())
     }
+}
 
-    private fun aForecast() =
-        Forecast(
-            listOf(
-                ForecastedHour(
-                    timestamp = 1620799200,
-                    date = Instant.ofEpochMilli(1620799200000),
-                    airTemperature = 12.4f,
-                    cape = 3.7f,
-                    dewPointTemperature = 11.4f,
-                    gust = 6.8f,
-                    highCloudCover = 97.9f,
-                    horizontalVisibility = 24134.6f,
-                    lowCloudCover = 98.6f,
-                    mediumCloudCover = 5.0f,
-                    rainPrecipitationRate = 0.0f,
-                    relativeHumidity = 93.4f,
-                    snowDepth = 0.0f,
-                    surfacePressure = 100145.8f,
-                    totalCloudCover = 100.0f,
-                    totalPrecipitationRate = 0.0f,
-                    windDirection = 286.5f,
-                    windSpeed = 3.5f
-                )
+fun aForecast() =
+    Forecast(
+        listOf(
+            ForecastedHour(
+                timestamp = 1620799200,
+                date = Instant.ofEpochMilli(1620799200000),
+                airTemperature = 12.4f,
+                cape = 3.7f,
+                dewPointTemperature = 11.4f,
+                gust = 6.8f,
+                highCloudCover = 97.9f,
+                horizontalVisibility = 24134.6f,
+                lowCloudCover = 98.6f,
+                mediumCloudCover = 5.0f,
+                rainPrecipitationRate = 0.0f,
+                relativeHumidity = 93.4f,
+                snowDepth = 0.0f,
+                surfacePressure = 100145.8f,
+                totalCloudCover = 100.0f,
+                totalPrecipitationRate = 0.0f,
+                windDirection = 286.5f,
+                windSpeed = 3.5f
             )
         )
-}
+    )
 
 fun mockClient() = HttpClient(MockEngine) {
     install(JsonFeature) {
