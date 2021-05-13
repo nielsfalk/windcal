@@ -21,7 +21,7 @@ internal fun BestWindDirections.matchValue(actualWindDirection: WindDirection): 
     }
 
 private fun WindDirection.toDeviationPercentage(maxDeviation: Int): Int {
-    return ((maxDeviation - this) * 100 / maxDeviation).roundToInt()
+    return ((maxDeviation - this) * 100 / maxDeviation).absoluteValue.roundToInt()
 }
 
 class BestWindDirectionsException(msg: String) : Exception(msg)
