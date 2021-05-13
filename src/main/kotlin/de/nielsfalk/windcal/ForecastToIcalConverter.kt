@@ -11,11 +11,11 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-fun Forecast.toIcal(bestWindDirections:BestWindDirections?=null): String =
+fun List<ForecastedHour>.toIcal(bestWindDirections: BestWindDirections? = null): String =
     Calendar().apply {
         properties.add(ProdId("-//Events Calendar//iCal4j 1.0//EN"))
         properties.add(CalScale.GREGORIAN)
-        components.addAll(data.map { it.toEvent(bestWindDirections) })
+        components.addAll(map { it.toEvent(bestWindDirections) })
     }.toString()
 
 private fun ForecastedHour.toEvent(bestWindDirections: BestWindDirections?): CalendarComponent =
@@ -26,12 +26,12 @@ private fun ForecastedHour.toEvent(bestWindDirections: BestWindDirections?): Cal
     ).apply { properties += Description(description(bestWindDirections)) }
 
 private fun ForecastedHour.title(bestWindDirections: BestWindDirections?): String = """
-    wind ${windSpeed.ms2kts()} (${gust.ms2kts()}) ${bestWindDirections?.let { " ${it.matchValue(windDirection)}% direction match" }?:""} 
+    wind $wind (${gust}) ${bestWindDirections?.let { " ${it.matchValue(windDirection)}% direction match" }?:""} 
     """.trimIndent()
 
 private fun ForecastedHour.description(bestWindDirections: BestWindDirections?): String = """
-    wind ${windSpeed.ms2kts()}
-    gust ${gust.ms2kts()}
+    wind $wind
+    gust $gust
     direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" }?:""} ${windDirection}
     rainPrecipitationRate $rainPrecipitationRate
     airTemperature(at 2m °C) $airTemperature

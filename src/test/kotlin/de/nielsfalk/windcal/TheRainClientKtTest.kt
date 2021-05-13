@@ -32,7 +32,7 @@ fun aForecast() =
                 airTemperature = 12.4f,
                 cape = 3.7f,
                 dewPointTemperature = 11.4f,
-                gust = 6.8f,
+                gustMs = 6.8f,
                 highCloudCover = 97.9f,
                 horizontalVisibility = 24134.6f,
                 lowCloudCover = 98.6f,
@@ -44,7 +44,7 @@ fun aForecast() =
                 totalCloudCover = 100.0f,
                 totalPrecipitationRate = 0.0f,
                 windDirection = 286.5f,
-                windSpeed = 3.5f
+                windMs = 3.5f
             )
         )
     )

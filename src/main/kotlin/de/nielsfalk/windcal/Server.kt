@@ -20,7 +20,9 @@ fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient
                 val ical = forecast(
                     location = call.parameters["latlng"].toLocation() ?: tempelhoferFeld,
                     httpClientBuilder = httpClientBuilder
-                ).toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections())
+                ).data
+                    .filter(call.parameters["filter"])
+                    .toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections())
                 call.respondText(
                     ical,
                     contentType = ContentType("text", "calendar")

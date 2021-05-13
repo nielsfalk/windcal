@@ -1,6 +1,8 @@
 package de.nielsfalk.windcal
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -56,7 +58,10 @@ data class ForecastedHour(
     val airTemperature: Float,//	Air temperature at 2m	°C
     val cape: Float,//	Convective available potential energy
     val dewPointTemperature: Float,//	The temperature of dew point, i.e. at which temperature the air reaches 100% humidity at 2m	°C
-    val gust: Float,//	Wind gust Speed	m/s
+    @JsonProperty("gust")
+    val gustMs: Float,//	Wind gust Speed	m/s
+    @JsonProperty("gustKts") // should be @JsonIgnore but jackson has an exception if it is
+    val gust: Float = gustMs.ms2kts(),
     val highCloudCover: Float,//	High clouds at levels with air pressure below 450hPa. The value describes the overall cloud coverage	0-1
     val horizontalVisibility: Float,//	Horizontal visibility	m
     val lowCloudCover: Float,//	Low clouds at levels with air pressure above 800hPa. The value describes the overall cloud coverage	0-1
@@ -69,7 +74,10 @@ data class ForecastedHour(
     val totalPrecipitationRate: Float,//	Total Precipitation rate	kg.m-2.s-1
     // 0 and 180 are the best on tempelhofer feld
     val windDirection: Float,//	Direction of wind at 10m above sea level	°	0° indicates wind coming from the North, 90° coming from the East, 180° coming from the South, 270° coming from the West)
-    val windSpeed: Float,//	Speed of wind at 10m above sea level	m/s
+    @JsonProperty("windSpeed")
+    val windMs: Float,//	Speed of wind at 10m above sea level	m/s
+    @JsonIgnore
+    val wind: Float = windMs.ms2kts(),
 )
 
-fun Float.ms2kts() = BigDecimal(this * 1.944).setScale(2, RoundingMode.HALF_UP)
+private fun Float.ms2kts() = BigDecimal(this * 1.944).setScale(2, RoundingMode.HALF_UP).toFloat()
