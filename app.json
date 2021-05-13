@@ -1,0 +1,16 @@
+{
+  "name": "windcal",
+  "description": "Windcal is a bridge between api.therainery.com and ical.",
+  "website": "https://nielsfalk.de/",
+  "repository": "https://github.com/nielsfalk/windcal",
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-gradle.git"
+    }
+  ],
+  "env": {
+    "theRainApiKey": {
+      "description": "Signup for https://therainery.com/ and past you api-key here"
+    }
+  }
+}
