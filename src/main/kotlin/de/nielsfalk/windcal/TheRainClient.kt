@@ -69,6 +69,7 @@ data class ForecastedHour(
     val surfacePressure: Float,//	Surface Pressure	Pa
     val totalCloudCover: Float,//	Total cloud coverage	0-1
     val totalPrecipitationRate: Float,//	Total Precipitation rate	kg.m-2.s-1
+    // 0 and 180 are the best on tempelhofer feld
     val windDirection: Float,//	Direction of wind at 10m above sea level	°	0° indicates wind coming from the North, 90° coming from the East, 180° coming from the South, 270° coming from the West)
     val windSpeed: Float,//	Speed of wind at 10m above sea level	m/s
 )
