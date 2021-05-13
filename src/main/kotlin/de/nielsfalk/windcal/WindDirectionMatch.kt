@@ -16,7 +16,7 @@ internal fun BestWindDirections.matchValue(actualWindDirection: WindDirection): 
                     (first().deviance(actualWindDirection) % 180).toDeviationPercentage(maxDeviation = 90)
             else
                 throw BestWindDirectionsException("only opposite Directions are supported yet")
-        else -> throw BestWindDirectionsException("$size BestWindDirectios is not yet supported")
+        else -> throw BestWindDirectionsException("$size BestWindDirections is not yet supported")
 
     }
 

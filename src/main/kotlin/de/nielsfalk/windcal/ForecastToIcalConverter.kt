@@ -32,7 +32,7 @@ private fun ForecastedHour.title(bestWindDirections: BestWindDirections?): Strin
 private fun ForecastedHour.description(bestWindDirections: BestWindDirections?): String = """
     wind $wind
     gust $gust
-    direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" }?:""} ${windDirection}
+    direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" }?:""} $windDirection
     rainPrecipitationRate $rainPrecipitationRate
     airTemperature(at 2m °C) $airTemperature
     cape(Convective available potential energy) $cape

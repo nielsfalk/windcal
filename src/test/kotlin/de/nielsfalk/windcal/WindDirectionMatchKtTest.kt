@@ -25,7 +25,7 @@ class WindDirectionMatchKtTest {
     }
 
     @Test
-    fun `detect wind direction match for singel optimum`() {
+    fun `detect wind direction match for single optimum`() {
         val bestOnTempelhoferFeld: BestWindDirections = listOf(90f)
 
         expectThat(bestOnTempelhoferFeld.matchValue(0F)).isEqualTo(50)

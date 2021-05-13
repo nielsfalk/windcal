@@ -6,7 +6,7 @@ import strikt.assertions.contains
 
 class ForecastToIcalConverterKtTest {
     @Test
-    fun `convert forcast to ical`() {
+    fun `convert forecast to ical`() {
         val ical = aForecast().data.toIcal()
 
         expectThat(ical).contains("BEGIN:VCALENDAR")

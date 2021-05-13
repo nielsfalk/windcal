@@ -35,7 +35,7 @@ fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient
         get("/") {
             val url = "/wind.ics?latlng=52.47301625304697,13.399166578830597&bestWindDirection=0,180&filter=wind%3E6.9,wind%3C28"
             @Language("HTML") val page = """
-                    <html>
+                    <html lang='en'>
                         <head><title>HELLO WIND!</title></head>
                         <body><h2>HELLO WIND!</h2>subscribe to <a href="$url">$url</a></body>
                     </html>""".trimIndent()
@@ -46,13 +46,11 @@ fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient
 
 private fun String?.toBestWindDirections(): BestWindDirections? =
     this?.split(",", limit = 2)
-        ?.map { it.toFloatOrNull() }
-        ?.filterNotNull()
+        ?.mapNotNull { it.toFloatOrNull() }
 
 private fun String?.toLocation(): Location? =
     this?.split(",", limit = 2)
-        ?.map { it.toDoubleOrNull() }
-        ?.filterNotNull()
+        ?.mapNotNull { it.toDoubleOrNull() }
         ?.let {
             if (it.size == 2) Location(latitude = it.first(), longitude = it.last()) else null
         }

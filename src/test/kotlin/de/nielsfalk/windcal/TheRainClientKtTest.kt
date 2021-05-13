@@ -51,7 +51,7 @@ fun aForecast() =
 
 fun mockClient() = HttpClient(MockEngine) {
     install(JsonFeature) {
-        serializer = JacksonSerializer() {
+        serializer = JacksonSerializer {
             registerModule(JavaTimeModule())
         }
     }
