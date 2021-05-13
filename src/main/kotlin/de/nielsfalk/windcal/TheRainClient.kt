@@ -12,7 +12,7 @@ import java.math.RoundingMode
 import java.time.Instant
 
 private const val baseUrl = "https://api.therainery.com/"
-private val tempelhoferFeld = Location(latitude = 52.47301625304697, longitude = 13.399166578830597)
+val tempelhoferFeld = Location(latitude = 52.47301625304697, longitude = 13.399166578830597)
 
 fun theRainHttpClient() =
     HttpClient {
