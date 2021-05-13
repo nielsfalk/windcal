@@ -10,24 +10,24 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-fun Forecast.toIcal(): String =
+fun Forecast.toIcal(bestWindDirections:BestWindDirections?=null): String =
     Calendar().apply {
         properties.add(ProdId("-//Events Calendar//iCal4j 1.0//EN"))
         properties.add(CalScale.GREGORIAN)
-        components.addAll(data.map { it.toEvent() })
+        components.addAll(data.map { it.toEvent(bestWindDirections) })
     }.toString()
 
-private fun ForecastedHour.toEvent(): CalendarComponent =
+private fun ForecastedHour.toEvent(bestWindDirections: BestWindDirections?): CalendarComponent =
     VEvent(
         date.toIcal(),
         Duration.ofHours(1),
-        this.summery()
+        this.summery(bestWindDirections)
     )
 
-private fun ForecastedHour.summery(): String = """
+private fun ForecastedHour.summery(bestWindDirections: BestWindDirections?): String = """
     wind ${windSpeed.ms2kts()}
     gust ${gust.ms2kts()}
-    direction ${windDirection}
+    direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" }?:""} ${windDirection}
     rainPrecipitationRate ${rainPrecipitationRate}
     """.trimIndent()
 
