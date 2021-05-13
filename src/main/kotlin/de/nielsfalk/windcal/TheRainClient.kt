@@ -22,7 +22,7 @@ fun theRainHttpClient() =
             }
         }
         defaultRequest {
-            header("x-api-key", System.getProperty("theRainApiKey") ?: throw IllegalArgumentException("please provide theRainApiKey"))
+            header("x-api-key", System.getProperty("theRainApiKey") ?: System.getenv("theRainApiKey")?: throw IllegalArgumentException("please provide theRainApiKey"))
         }
     }
 

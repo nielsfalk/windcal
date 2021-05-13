@@ -2,6 +2,7 @@ package de.nielsfalk.windcal
 
 import io.ktor.application.*
 import io.ktor.client.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.response.*
@@ -12,6 +13,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient() }) {
+    install(CallLogging)
     routing {
         get("/wind.ics") {
             try {

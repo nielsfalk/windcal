@@ -1,5 +1,16 @@
 plugins {
+
     kotlin("jvm") version "1.4.32"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
+    application
+}
+
+application {
+    val name = "de.nielsfalk.windcal.ServerKt"
+    mainClass.set(name)
+
+    // Required by ShadowJar.
+    mainClassName = name
 }
 
 group = "de.nielsfalk.windcal"
@@ -27,4 +38,9 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:$ktor_version")
     testImplementation("io.strikt:strikt-core:0.31.0")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+}
+
+task("stage") {
+    dependsOn.add("clean")
+    dependsOn.add("shadowJar")
 }
