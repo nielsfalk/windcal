@@ -34,14 +34,12 @@ fun main() {
 
 suspend fun forecast(
     location: Location = tempelhoferFeld,
-    httpClient: HttpClient = theRainHttpClient()
+    httpClientBuilder: () -> HttpClient = { theRainHttpClient() }
 ): Forecast =
-    httpClient.use { client ->
+    httpClientBuilder().use { client ->
         client.get(
             urlString = "${baseUrl}forecast/weather?latitude=${location.latitude}&longitude=${location.longitude}"
-        ) {
-            //  parameter()
-        }
+        )
     }
 
 data class Location(val latitude: Double, val longitude: Double)

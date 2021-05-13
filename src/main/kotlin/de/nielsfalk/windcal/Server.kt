@@ -3,6 +3,7 @@ package de.nielsfalk.windcal
 import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.response.*
 import io.ktor.routing.*
 
@@ -10,17 +11,21 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(httpClient: HttpClient = theRainHttpClient()) {
+fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient() }) {
     routing {
         get("/wind.ics") {
-            val ical = forecast(
-                location = call.parameters["latlng"].toLocation() ?: tempelhoferFeld,
-                httpClient = httpClient
-            ).toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections())
-            call.respondText(
-                ical,
-                contentType = ContentType("text", "calendar")
-            )
+            try {
+                val ical = forecast(
+                    location = call.parameters["latlng"].toLocation() ?: tempelhoferFeld,
+                    httpClientBuilder = httpClientBuilder
+                ).toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections())
+                call.respondText(
+                    ical,
+                    contentType = ContentType("text", "calendar")
+                )
+            } catch (e: Exception) {
+                call.respondText(e.message ?: e.toString(), contentType = ContentType.Text.Plain, status = InternalServerError)
+            }
         }
         get("/") {
             call.respondText("HELLO WIND!", contentType = ContentType.Text.Plain)

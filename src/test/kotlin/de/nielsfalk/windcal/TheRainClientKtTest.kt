@@ -17,7 +17,7 @@ import java.time.Instant
 class TheRainClientKtTest {
     @Test
     fun `request forecast`() {
-        val forecast = runBlocking { forecast(httpClient = mockClient()) }
+        val forecast = runBlocking { forecast{mockClient()} }
 
         expectThat(forecast).isEqualTo(aForecast())
     }

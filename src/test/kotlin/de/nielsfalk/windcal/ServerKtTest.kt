@@ -12,7 +12,7 @@ import strikt.assertions.isNotNull
 class ServerKtTest {
     @Test
     fun `http request for wind ical`() {
-        withTestApplication({ module(mockClient()) }) {
+        withTestApplication({ module { mockClient() } }) {
             handleRequest(HttpMethod.Get, "/wind.ics?latlng=52.47301625304697,13.399166578830597&bestWindDirection=0,180").apply {
                 expectThat(response.status()).isEqualTo(OK)
                 expectThat(response.content).isNotNull().contains("wind 6.80\\ngust 13.22\\ndirection 18% match - 286.5\\nrainPrecipitationRate 0.0")
