@@ -4,35 +4,41 @@ import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.DateTime
 import net.fortuna.ical4j.model.component.CalendarComponent
 import net.fortuna.ical4j.model.component.VEvent
-import net.fortuna.ical4j.model.property.CalScale
-import net.fortuna.ical4j.model.property.Description
-import net.fortuna.ical4j.model.property.ProdId
+import net.fortuna.ical4j.model.property.*
 import java.time.Duration
 import java.time.Instant
 import java.util.*
 
-fun List<ForecastedHour>.toIcal(bestWindDirections: BestWindDirections? = null): String =
+fun List<ForecastedHour>.toIcal(bestWindDirections: BestWindDirections? = null): Calendar =
     Calendar().apply {
-        properties.add(ProdId("-//Events Calendar//iCal4j 1.0//EN"))
-        properties.add(CalScale.GREGORIAN)
-        components.addAll(map { it.toEvent(bestWindDirections) })
-    }.toString()
+        properties += listOf(
+            ProdId("-//Events Calendar//iCal4j 1.0//EN"),
+            CalScale.GREGORIAN,
+            Version.VERSION_2_0
+        )
+        components += map { it.toEvent(bestWindDirections) }
+    }
 
 private fun ForecastedHour.toEvent(bestWindDirections: BestWindDirections?): CalendarComponent =
     VEvent(
         date.toIcal(),
         Duration.ofHours(1),
         title(bestWindDirections)
-    ).apply { properties += Description(description(bestWindDirections)) }
+    ).apply {
+        properties += listOf(
+            Description(description(bestWindDirections)),
+            Uid("windcal+${date.epochSecond}")
+        )
+    }
 
 private fun ForecastedHour.title(bestWindDirections: BestWindDirections?): String = """
-    wind $wind (${gust}) ${bestWindDirections?.let { " ${it.matchValue(windDirection)}% direction match" }?:""} 
+    wind $wind (${gust}) ${bestWindDirections?.let { " ${it.matchValue(windDirection)}% direction match" } ?: ""} 
     """.trimIndent()
 
 private fun ForecastedHour.description(bestWindDirections: BestWindDirections?): String = """
     wind $wind
     gust $gust
-    direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" }?:""} $windDirection
+    direction${bestWindDirections?.let { " ${it.matchValue(windDirection)}% match -" } ?: ""} $windDirection
     rainPrecipitationRate $rainPrecipitationRate
     airTemperature(at 2m °C) $airTemperature
     cape(Convective available potential energy) $cape

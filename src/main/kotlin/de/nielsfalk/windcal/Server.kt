@@ -23,7 +23,7 @@ fun Application.module(httpClientBuilder: () -> HttpClient = { theRainHttpClient
                     httpClientBuilder = httpClientBuilder
                 ).data
                     .filter(call.parameters["filter"])
-                    .toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections())
+                    .toIcal(bestWindDirections = call.parameters["bestWindDirection"].toBestWindDirections()).toString()
                 call.respondText(
                     ical,
                     contentType = ContentType("text", "calendar")
