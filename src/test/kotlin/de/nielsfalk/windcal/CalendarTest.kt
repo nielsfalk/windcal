@@ -1,8 +1,6 @@
-import de.nielsfalk.DayData
-import de.nielsfalk.HourData
-import de.nielsfalk.WindDirection.*
-import de.nielsfalk.description
-import de.nielsfalk.summery
+package de.nielsfalk.windcal
+
+import de.nielsfalk.windcal.WindDirection.*
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
@@ -23,7 +21,7 @@ class CalendarTest : FreeSpec({
     }
 
     "write summary" {
-        aDayData.summery("Wiek") shouldBe "Wiek💨14.3(21.7)←↖🌡4.3☔️6.3"
+        aDayData.summery("Wiek") shouldBe "Wiek💨14.3(21.7)←↖🌡4.3☔️6.3⏱8"
     }
 })
 

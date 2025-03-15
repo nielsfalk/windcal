@@ -1,7 +1,6 @@
-import de.nielsfalk.Filter
-import de.nielsfalk.OpenMeteoResponse
-import de.nielsfalk.WindDirection.*
-import de.nielsfalk.toDayDataList
+package de.nielsfalk.windcal
+
+import de.nielsfalk.windcal.WindDirection.*
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json

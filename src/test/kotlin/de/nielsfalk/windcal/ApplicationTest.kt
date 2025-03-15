@@ -1,4 +1,4 @@
-package de.nielsfalk
+package de.nielsfalk.windcal
 
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe

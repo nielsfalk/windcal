@@ -1,6 +1,6 @@
-package de.nielsfalk
+package de.nielsfalk.windcal
 
-import de.nielsfalk.WindDirection.*
+import de.nielsfalk.windcal.WindDirection.*
 
 data class Spot(
     val name: String,

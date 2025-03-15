@@ -1,4 +1,4 @@
-package de.nielsfalk
+package de.nielsfalk.windcal
 
 import biweekly.ICalendar
 import biweekly.component.VEvent

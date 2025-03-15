@@ -1,4 +1,4 @@
-package de.nielsfalk
+package de.nielsfalk.windcal
 
 import io.ktor.client.*
 import io.ktor.client.call.*

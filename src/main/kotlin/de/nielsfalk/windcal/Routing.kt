@@ -1,4 +1,4 @@
-package de.nielsfalk
+package de.nielsfalk.windcal
 
 import io.ktor.http.*
 import io.ktor.server.application.*
