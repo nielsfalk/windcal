@@ -61,7 +61,7 @@ data class OpenMeteoResponse(
     val hourly: Map<String, Array<Double?>> = mapOf(),
 )
 
-private fun OpenMeteoResponse.toDayDataList(filter: Filter): List<DayData> {
+fun OpenMeteoResponse.toDayDataList(filter: Filter): List<DayData> {
     val sunsetRise = daily.transpose()
         .mapKeys { (instant, _) -> instant.atZone(ZoneId.of("Europe/Berlin")).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }

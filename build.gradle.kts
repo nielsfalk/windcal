@@ -16,7 +16,6 @@ application {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -33,5 +32,9 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
 
     testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotest.runner.junit5)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
