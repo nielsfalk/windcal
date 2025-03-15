@@ -7,7 +7,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
@@ -16,18 +15,16 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.HOURS
 
-
-suspend fun main() {
-    val wiek = spots.first()
-    val dayDataList: List<DayData> =
-        queryForecast(wiek.latitude, wiek.longitude)
-            .toDayDataList(wiek.filter)
-
-    println("result = $dayDataList")
-}
+private suspend fun forecast(wiek: Spot, timezone: String = "Europe/Berlin") =
+    queryForecast(wiek.latitude, wiek.longitude, timezone)
+        .toDayDataList(wiek.filter, timezone)
 
 @OptIn(ExperimentalSerializationApi::class)
-suspend fun queryForecast(latitude: Double, longitude: Double): OpenMeteoResponse =
+suspend fun queryForecast(
+    latitude: Double,
+    longitude: Double,
+    timezone: String = "Europe/Berlin"
+): OpenMeteoResponse =
     HttpClient(CIO) {
         install(ContentNegotiation) {
             json(
@@ -47,7 +44,7 @@ suspend fun queryForecast(latitude: Double, longitude: Double): OpenMeteoRespons
                 "temperature_2m,windspeed_10m,winddirection_10m,relativehumidity_2m,rain,windgusts_10m"
             )
             parameter("forecast_days", "14")
-            parameter("timezone", "Europe/Berlin")
+            parameter("timezone", timezone)
             parameter("temperature_unit", "celsius")
             parameter("windspeed_unit", "kn")
             parameter("models", "best_match")
@@ -61,15 +58,18 @@ data class OpenMeteoResponse(
     val hourly: Map<String, Array<Double?>> = mapOf(),
 )
 
-fun OpenMeteoResponse.toDayDataList(filter: Filter): List<DayData> {
+fun OpenMeteoResponse.toDayDataList(
+    filter: Filter,
+    timezone: String = "Europe/Berlin"
+): List<DayData> {
     val sunsetRise = daily.transpose()
-        .mapKeys { (instant, _) -> instant.atZone(ZoneId.of("Europe/Berlin")).toLocalDate() }
+        .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }
 
     return hourly.transpose()
         .mapValues { it.toHourData() }
         .values
-        .groupBy { it.instant.atZone(ZoneId.of("Europe/Berlin")).toLocalDate() }
+        .groupBy { it.instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .mapNotNull { (localDate, hourToData) ->
             hourToData
                 .filter {
