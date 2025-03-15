@@ -39,3 +39,7 @@ dependencies {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
+
+application {
+    mainClass.set("de.nielsfalk.windcal.ApplicationKt")
+}

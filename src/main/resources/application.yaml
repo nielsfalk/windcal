@@ -1,6 +1,6 @@
 ktor:
     application:
         modules:
-            - de.nielsfalk.ApplicationKt.module
+            - de.nielsfalk.windcal.ApplicationKt.module
     deployment:
         port: 8080
