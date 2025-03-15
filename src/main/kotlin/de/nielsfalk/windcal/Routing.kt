@@ -1,6 +1,7 @@
 package de.nielsfalk.windcal
 
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -11,6 +12,9 @@ fun Application.configureRouting() {
     routing {
         get("/") {
             call.respondText("Hello World!")
+        }
+        head("/") {
+            call.respond(NoContent)
         }
         get("/wind.ics") {
             val timezone = call.queryParameters["timezone"] ?: "Europe/Berlin"
