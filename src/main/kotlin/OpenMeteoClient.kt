@@ -1,66 +1,72 @@
 package de.nielsfalk
 
-import com.openmeteo.api.Forecast
-import com.openmeteo.api.Forecast.Daily.sunrise
-import com.openmeteo.api.Forecast.Daily.sunset
-import com.openmeteo.api.Forecast.Hourly.rain
-import com.openmeteo.api.Forecast.Hourly.relativehumidity2m
-import com.openmeteo.api.Forecast.Hourly.temperature2m
-import com.openmeteo.api.Forecast.Hourly.winddirection10m
-import com.openmeteo.api.Forecast.Hourly.windgusts10m
-import com.openmeteo.api.Forecast.Hourly.windspeed10m
-import com.openmeteo.api.OpenMeteo
-import com.openmeteo.api.common.time.Timezone
-import com.openmeteo.api.common.units.TemperatureUnit
-import com.openmeteo.api.common.units.WindSpeedUnit
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.HOURS
 
 
-fun main() {
+suspend fun main() {
     val wiek = spots.first()
     val dayDataList: List<DayData> =
-        queryForecast(wiek.latitude.toFloat(), wiek.longitude.toFloat())
+        queryForecast(wiek.latitude, wiek.longitude)
             .toDayDataList(wiek.filter)
 
     println("result = $dayDataList")
 }
 
-fun queryForecast(latitude: Float, longitude: Float) = OpenMeteo(
-    latitude = latitude,
-    longitude = longitude
-)
-    .forecast {
-        daily = Forecast.Daily {
-            listOf(sunset, sunrise)
-        }
-        hourly = Forecast.Hourly {
-            listOf(
-                temperature2m,
-                windspeed10m,
-                winddirection10m,
-                relativehumidity2m,
-                rain,
-                windgusts10m
+@OptIn(ExperimentalSerializationApi::class)
+suspend fun queryForecast(latitude: Double, longitude: Double): OpenMeteoResponse =
+    HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    namingStrategy = JsonNamingStrategy.SnakeCase
+                }
             )
         }
-        models = Forecast.Models {
-            listOf(bestMatch)
-        }
-        temperatureUnit = TemperatureUnit.Celsius
-        windSpeedUnit = WindSpeedUnit.KilometresPerHour // Knots have an serialization error
-        forecastDays = 14
-        timezone = Timezone.getTimeZone("Europe/Berlin")
-    }.getOrThrow()
+    }.use {
+        it.get("https://api.open-meteo.com/v1/forecast") {
+            parameter("latitude", latitude.toString())
+            parameter("longitude", longitude.toString())
+            parameter("daily", "sunset,sunrise")
+            parameter(
+                "hourly",
+                "temperature_2m,windspeed_10m,winddirection_10m,relativehumidity_2m,rain,windgusts_10m"
+            )
+            parameter("forecast_days", "14")
+            parameter("timezone", "Europe/Berlin")
+            parameter("temperature_unit", "celsius")
+            parameter("windspeed_unit", "kn")
+            parameter("models", "best_match")
+            parameter("timeformat", "unixtime")
+        }.body()
+    }
 
-private fun Forecast.Response.toDayDataList(filter: Filter): List<DayData> {
-    val sunsetRise = dailyValues.transpose()
+@Serializable
+data class OpenMeteoResponse(
+    val daily: Map<String, Array<Double?>> = mapOf(),
+    val hourly: Map<String, Array<Double?>> = mapOf(),
+)
+
+private fun OpenMeteoResponse.toDayDataList(filter: Filter): List<DayData> {
+    val sunsetRise = daily.transpose()
         .mapKeys { (instant, _) -> instant.atZone(ZoneId.of("Europe/Berlin")).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }
 
-    return hourlyValues.transpose()
+    return hourly.transpose()
         .mapValues { it.toHourData() }
         .values
         .groupBy { it.instant.atZone(ZoneId.of("Europe/Berlin")).toLocalDate() }
@@ -108,16 +114,13 @@ private fun Map<String, Array<Double?>>.transpose(
 private fun Map.Entry<Instant, Map<String, Double>>.toHourData() =
     HourData(
         instant = key,
-        temperature2m = value[temperature2m],
-        windspeed10m = value[windspeed10m]?.kmh2Kts(),
-        winddirection10m = value[winddirection10m]?.let { WindDirection.fromDegrees(it.toInt()) },
-        relativehumidity2m = value[relativehumidity2m]?.kmh2Kts(),
-        rain = value[rain],
-        windgusts10m = value[windgusts10m]?.kmh2Kts()
+        temperature2m = value["temperature_2m"],
+        windspeed10m = value["windspeed_10m"],
+        winddirection10m = value["winddirection_10m"]?.let { WindDirection.fromDegrees(it.toInt()) },
+        relativehumidity2m = value["relativehumidity_2m"],
+        rain = value["rain"],
+        windgusts10m = value["windgusts_10m"]
     )
-
-private fun Double.kmh2Kts(): Double =
-    this * kmh2ktsFactor
 
 data class HourData(
     val temperature2m: Double?,
@@ -138,8 +141,8 @@ private fun Map<String, Double>.toSunsetRise() =
     mapValues { Instant.ofEpochSecond(it.value.toLong()) }
         .let {
             SunsetRise(
-                sunrise = it[sunrise]!!,
-                sunset = it[sunset]!!
+                sunrise = it["sunrise"]!!,
+                sunset = it["sunset"]!!
             )
         }
 
@@ -147,5 +150,3 @@ data class SunsetRise(val sunrise: Instant, val sunset: Instant)
 
 operator fun SunsetRise.contains(hour: Instant) =
     hour.truncatedTo(HOURS) in sunrise.truncatedTo(HOURS)..sunset.truncatedTo(HOURS)
-
-const val kmh2ktsFactor = 0.539957f
