@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.biweekly)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotest.runner.junit5)
