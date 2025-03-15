@@ -37,7 +37,7 @@ fun DayData.summery(spotName: String): String {
         .joinToString (separator = "")
         .toSet()
         .joinToString(separator = "")
-    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}☔️$rain"
+    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}☔️$rain⏱${hoursData.size}"
 }
 
 private fun <E> List<E>.average(function: (E)->Double?) =
