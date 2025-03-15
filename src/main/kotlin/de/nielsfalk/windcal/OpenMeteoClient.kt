@@ -15,9 +15,9 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit.HOURS
 
-suspend fun forecast(wiek: Spot, timezone: String = "Europe/Berlin") =
-    queryForecast(wiek.latitude, wiek.longitude, timezone)
-        .toDayDataList(wiek.filter, timezone)
+suspend fun forecast(spot: Spot, timezone: String = "Europe/Berlin") =
+    queryForecast(spot.latitude, spot.longitude, timezone)
+        .toDayDataList(spot.filter, timezone)
 
 @OptIn(ExperimentalSerializationApi::class)
 suspend fun queryForecast(

@@ -16,10 +16,9 @@ fun Application.configureRouting() {
             val timezone = call.queryParameters["timezone"] ?: "Europe/Berlin"
             val ical = spots.map {
                 async {
-                    forecast(it, timezone)
-                        .toIcal(it.name, timezone)
+                    forecast(spot = it, timezone = timezone)
+                        .toIcal(spotName = it.name)
                 }
-
             }
                 .awaitAll()
                 .flatten()

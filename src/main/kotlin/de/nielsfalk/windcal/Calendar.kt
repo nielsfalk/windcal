@@ -9,13 +9,12 @@ import java.time.ZoneId
 import java.util.*
 
 fun List<DayData>.toIcal(
-    spotName: String,
-    timezone: String
+    spotName: String
 ): List<VEvent> =
     map {
         VEvent().apply {
-            setDateStart(it.date.toDate(timezone), false)
-            setDateEnd(it.date.plusDays(1).toDate(timezone), false)
+            setDateStart(it.date.toDate(), false)
+            setDateEnd(it.date.plusDays(1).toDate(), false)
             summary = Summary(it.summery(spotName))
             description = Description(it.description())
             setOrganizer("organizer@example.com")
@@ -37,20 +36,29 @@ fun DayData.summery(spotName: String): String {
         .joinToString(separator = "")
         .toSet()
         .joinToString(separator = "")
-    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}☔️$rain⏱${hoursData.size}"
+    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}°☔️$rain%⏱${hoursData.size}"
 }
 
 private fun <E> List<E>.average(function: (E) -> Double?) =
     mapNotNull { function(it) }
-        .average()
-        .let { String.format(Locale.US, "%.1f", it) }
+    .average()
+    .format()
+
+private fun Double.format() = String.format(Locale.US, "%.0f", this)
 
 fun DayData.description(): String = hoursData.joinToString(separator = "\n") { it.description() }
 
-private fun HourData.description(): String =
-    "${instant.atZone(ZoneId.of("Europe/Berlin")).hour}💨$windspeed10m($windgusts10m)${winddirection10m?.arrow}🌡${temperature2m}☔️$rain"
+private fun HourData.description(): String {
+    val hour = instant.atZone(ZoneId.of("Europe/Berlin")).hour
+    val windspeed10m1 = windspeed10m?.format()
+    val windgusts10m1 = windgusts10m?.format()
+    val winddirection10m = winddirection10m?.arrow
+    val temperature2m1 = temperature2m?.format()
+    val rain1 = rain?.format()
+    return "$hour💨$windspeed10m1($windgusts10m1)${winddirection10m}🌡${temperature2m1}°☔️$rain1%"
+}
 
-private fun LocalDate.toDate(timezone: String) =
+private fun LocalDate.toDate() =
     Calendar.getInstance() //default timezone like biweekly.util.ICalDate.ICalDate() is expecting it
         .apply {
             set(year, monthValue - 1, dayOfMonth, 0, 0, 0)
