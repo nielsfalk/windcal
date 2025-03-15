@@ -28,7 +28,22 @@ fun List<VEvent>.toIcal(): String {
     }).go()
 }
 
-private fun DayData.summery(spotName: String): String = spotName
+fun DayData.summery(spotName: String): String {
+    val windspeed10m = hoursData.average { it.windspeed10m }
+    val windgusts10m = hoursData.average { it.windgusts10m }
+    val temperature2m = hoursData.average { it.temperature2m }
+    val rain = hoursData.average { it.rain }
+    val winddirection10m = hoursData.mapNotNull { it.winddirection10m?.arrow }
+        .joinToString (separator = "")
+        .toSet()
+        .joinToString(separator = "")
+    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}☔️$rain"
+}
+
+private fun <E> List<E>.average(function: (E)->Double?) =
+    mapNotNull { function(it) }
+        .average()
+        .let { String.format(Locale.US,"%.1f", it) }
 
 fun DayData.description(): String = hoursData.joinToString(separator = "\n") { it.description() }
 

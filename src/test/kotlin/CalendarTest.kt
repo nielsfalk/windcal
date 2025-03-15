@@ -2,6 +2,7 @@ import de.nielsfalk.DayData
 import de.nielsfalk.HourData
 import de.nielsfalk.WindDirection.*
 import de.nielsfalk.description
+import de.nielsfalk.summery
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
@@ -19,6 +20,10 @@ class CalendarTest : FreeSpec({
             12💨13.8(22.4)←↖🌡4.8☔️0.0
             13💨11.7(20.6)↖🌡5.1☔️50.0
         """.trimIndent()
+    }
+
+    "write summary" {
+        aDayData.summery("Wiek") shouldBe "Wiek💨14.3(21.7)←↖🌡4.3☔️6.3"
     }
 })
 
