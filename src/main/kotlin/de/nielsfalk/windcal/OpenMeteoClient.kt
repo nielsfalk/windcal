@@ -93,7 +93,7 @@ private operator fun Filter.invoke(hourData: HourData): Boolean =
         windspeed10m != null &&
                 windgusts10m != null &&
                 windspeed10m in minWindSpeed..maxWindSpeed &&
-                windgusts10m < maxGustSpeedOntop + windgusts10m &&
+                windgusts10m-windspeed10m <= maxGustSpeedOntop &&
                 windDirections?.let { winddirection10m != null && winddirection10m in it } ?: true
     }
 
