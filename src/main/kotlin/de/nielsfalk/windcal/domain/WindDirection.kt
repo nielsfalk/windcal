@@ -2,28 +2,34 @@ package de.nielsfalk.windcal.domain
 
 enum class WindDirection(
     val abbreviation: String,
-    val arrow: String,
-    vararg val degrees: IntRange
+    val arrow: String
 ) {
-    N("North", "↓", 348..360, 0..11),
-    NNE("North-Northeast", "↓↙", 12..33),
-    NE("Northeast", "↙", 34..56),
-    ENE("East-Northeast", "←↙", 57..78),
-    E("East", "←", 79..101),
-    ESE("East-Southeast", "←↖", 102..123),
-    SE("Southeast", "↖", 124..146),
-    SSE("South-Southeast", "↖↑", 147..168),
-    S("South", "↑", 169..191),
-    SSW("South-Southwest", "↗↑", 192..213),
-    SW("Southwest", "↗", 214..236),
-    WSW("West-Southwest", "↗→", 237..258),
-    W("West", "→", 259..281),
-    WNW("West-Northwest", "→↘", 282..303),
-    NW("Northwest", "↘", 304..326),
-    NNW("North-Northwest", "↘↓", 327..347);
+    N("North", "↓"),
+    NNE("North-Northeast", "↓↙"),
+    NE("Northeast", "↙"),
+    ENE("East-Northeast", "←↙"),
+    E("East", "←"),
+    ESE("East-Southeast", "←↖"),
+    SE("Southeast", "↖"),
+    SSE("South-Southeast", "↖↑"),
+    S("South", "↑"),
+    SSW("South-Southwest", "↗↑"),
+    SW("Southwest", "↗"),
+    WSW("West-Southwest", "↗→"),
+    W("West", "→"),
+    WNW("West-Northwest", "→↘"),
+    NW("Northwest", "↘"),
+    NNW("North-Northwest", "↘↓");
 
     companion object {
-        fun fromDegrees(degrees: Int) =
-            entries.find { it.degrees.any { degrees in it } } ?: N
+        private val degreesPerDirection = 360.0 / entries.size
+        private fun Double.normalize(i: Int=360) = (this + i) % i
+
+        fun fromDegrees(degrees: Double): WindDirection =
+            entries[
+                ((degrees.normalize() + degreesPerDirection / 2) / degreesPerDirection)
+                    .toInt()
+                        % 16
+            ]
     }
 }
