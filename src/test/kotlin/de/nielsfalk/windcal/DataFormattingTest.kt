@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.LocalDate
 
-class CalendarTest : FreeSpec({
+class DataFormattingTest : FreeSpec({
     "create description" {
         aDayData.description() shouldBe """
             06:00 💨12(18)→ 🧥3° ☀️

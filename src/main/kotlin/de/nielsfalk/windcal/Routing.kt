@@ -21,7 +21,7 @@ fun Application.configureRouting() {
             val ical = spots.map {
                 async {
                     forecast(spot = it, timezone = timezone)
-                        .toIcal(spotName = it.name)
+                        .toIcalEvents(spotName = it.name)
                 }
             }
                 .awaitAll()
