@@ -10,14 +10,30 @@ import io.ktor.server.testing.*
 
 class ApplicationTest : FreeSpec({
     "wind.ics" {
-        testApplication {
-            application {
-                module()
-            }
+        withApp{
             client.get("/wind.ics").apply {
                 status shouldBe OK
                 body<String>() shouldStartWith "BEGIN:VCALENDAR"
             }
         }
     }
+    "index.html" {
+        withApp{
+            client.get("/").apply {
+                status shouldBe OK
+                body<String>() shouldStartWith "<!"
+            }
+        }
+    }
 })
+
+private fun withApp(
+    function: suspend ApplicationTestBuilder.() -> Unit
+) {
+    testApplication {
+        application {
+            module()
+        }
+        function()
+    }
+}

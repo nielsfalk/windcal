@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wind Forecast Calender</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+<div class="bg-white p-6 rounded-lg shadow-md w-full max-w-lg">
+  <h2 class="text-xl font-bold mb-4">Wind Forecast Calender</h2>
+
+  <label class="block">Spot Name:</label>
+  <input type="text" id="spotname" class="w-full border p-2 rounded mb-2" required>
+  <p id="spotnameError" class="text-red-500 text-sm hidden">Spot Name is required.</p>
+
+  <label class="block">Latitude:</label>
+  <input type="text" id="latitude" class="w-full border p-2 rounded mb-2" required>
+  <p id="latitudeError" class="text-red-500 text-sm hidden">Latitude must be a valid number.</p>
+
+  <label class="block">Longitude:</label>
+  <input type="text" id="longitude" class="w-full border p-2 rounded mb-4" required>
+  <p id="longitudeError" class="text-red-500 text-sm hidden">Longitude must be a valid number.</p>
+
+  <h3 class="font-semibold">Wind Directions:</h3>
+  <div class="grid grid-cols-4 gap-2 mb-4" id="windDirections"></div>
+
+  <label class="block">Min Wind Speed (knots): <span id="minWindSpeedValue">12.0</span></label>
+  <input type="range" id="minWindSpeed" min="3.0" max="25.0" value="12.0" step="0.1" class="w-full mb-4" oninput="minWindSpeedValue.textContent = this.value">
+
+  <label class="block">Max Wind Speed (knots): <span id="maxWindSpeedValue">40.0</span></label>
+  <input type="range" id="maxWindSpeed" min="10.0" max="70.0" value="40.0" step="0.1" class="w-full mb-4" oninput="maxWindSpeedValue.textContent = this.value">
+
+  <label class="block">Max Gust Speed on Top (knots): <span id="maxGustSpeedValue">15.0</span></label>
+  <input type="range" id="maxGustSpeed" min="5.0" max="30.0" value="15.0" step="0.1" class="w-full mb-4" oninput="maxGustSpeedValue.textContent = this.value">
+
+  <label class="block">Hours of Matching Conditions: <span id="hoursValue">2</span></label>
+  <input type="range" id="hours" min="1" max="10" value="2" step="1" class="w-full mb-4" oninput="hoursValue.textContent = this.value">
+
+  <button onclick="addData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Add</button>
+
+  <h3 class="font-semibold mt-4">Stored Data:</h3>
+  <div id="chipContainer" class="flex flex-wrap gap-2 mb-4"></div>
+
+  <label class="block">Generated Link:</label>
+  <textarea id="outputData" readonly class="w-full border p-2 rounded cursor-pointer" onclick="copyToClipboard()"></textarea>
+  <p id="copyHint" class="text-green-500 hidden">Copied!</p>
+</div>
+
+<script>
+  let dataArray = [];
+  document.addEventListener("DOMContentLoaded", function() {
+    let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    let windDirectionsContainer = document.getElementById("windDirections");
+
+    directions.forEach(dir => {
+      let label = document.createElement("label");
+      label.className = "flex items-center space-x-2";
+      label.innerHTML = `<input type='checkbox' value='${dir}' class='form-checkbox' checked><span>${dir}</span>`;
+      windDirectionsContainer.appendChild(label);
+    });
+  });
+
+  function addData() {
+    let spotname = document.getElementById("spotname").value;
+    let latitude = document.getElementById("latitude").value;
+    let longitude = document.getElementById("longitude").value;
+
+    document.getElementById("spotnameError").classList.toggle("hidden", !!spotname);
+    document.getElementById("latitudeError").classList.toggle("hidden", !isNaN(parseFloat(latitude)));
+    document.getElementById("longitudeError").classList.toggle("hidden", !isNaN(parseFloat(longitude)));
+
+    if (!spotname || isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) return;
+
+    let minWindSpeed = document.getElementById("minWindSpeed").value;
+    let maxWindSpeed = document.getElementById("maxWindSpeed").value;
+    let maxGustSpeed = document.getElementById("maxGustSpeed").value;
+    let hours = document.getElementById("hours").value;
+    let selectedWindDirections = Array.from(document.querySelectorAll("#windDirections input:checked"))
+    .map(input => input.value).join('-');
+
+    let entry = { spotname, latitude, longitude, minWindSpeed, maxWindSpeed, maxGustSpeed, hours, "windDirections": selectedWindDirections };
+
+    dataArray.push(entry);
+    updateChips();
+    updateOutput();
+  }
+
+  function updateChips() {
+    const chipContainer = document.getElementById("chipContainer");
+    chipContainer.innerHTML = "";
+
+    dataArray.forEach((data, index) => {
+      let chip = document.createElement("div");
+      chip.className = "flex items-center bg-gray-300 px-3 py-1 rounded-full";
+      chip.innerHTML = `${data.spotname} <span class='ml-2 cursor-pointer text-red-600' onclick='removeEntry(${index})'>✖</span>`;
+      chipContainer.appendChild(chip);
+    });
+  }
+
+  function updateOutput() {
+    let params = dataArray.map(data => new URLSearchParams(data).toString()).join('&');
+    document.getElementById("outputData").value = `!!baseurl!!?${params}`;
+  }
+
+  function removeEntry(index) {
+    dataArray.splice(index, 1);
+    updateChips();
+    updateOutput();
+  }
+
+  function copyToClipboard() {
+    let outputData = document.getElementById("outputData");
+    outputData.select();
+    document.execCommand("copy");
+
+    let copyHint = document.getElementById("copyHint");
+    copyHint.classList.remove("hidden");
+    setTimeout(() => copyHint.classList.add("hidden"), 3000);
+  }
+</script>
+</body>
+</html>

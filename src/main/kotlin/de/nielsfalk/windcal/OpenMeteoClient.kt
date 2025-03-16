@@ -71,7 +71,7 @@ fun OpenMeteoResponse.toDayDataList(timezone: String = "Europe/Berlin"): List<Da
         .groupBy { it.instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .toDayData(getSunsetRise(timezone))
 
-fun Map<LocalDate, List<HourData>>.toDayData(
+private fun Map<LocalDate, List<HourData>>.toDayData(
     sunsetRise: Map<LocalDate, SunsetRise>
 ): List<DayData> =
     map { (localDate, hourToData) ->
@@ -83,7 +83,7 @@ fun Map<LocalDate, List<HourData>>.toDayData(
         )
     }
 
-fun OpenMeteoResponse.getSunsetRise(timezone: String = "Europe/Berlin") =
+private fun OpenMeteoResponse.getSunsetRise(timezone: String = "Europe/Berlin") =
     daily.transpose()
         .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }
@@ -122,4 +122,4 @@ private fun Map<String, Double>.toSunsetRise() =
             )
         }
 
-data class SunsetRise(val sunrise: Instant, val sunset: Instant)
+ private data class SunsetRise(val sunrise: Instant, val sunset: Instant)
