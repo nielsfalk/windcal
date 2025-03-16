@@ -61,31 +61,39 @@ data class OpenMeteoResponse(
 fun OpenMeteoResponse.toDayDataList(
     filter: Filter,
     timezone: String = "Europe/Berlin"
-): List<DayData> {
-    val sunsetRise = daily.transpose()
-        .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
-        .mapValues { (_, map) -> map.toSunsetRise() }
-
-    return hourly.transpose()
+): List<DayData> =
+    hourly.transpose()
         .mapValues { it.toHourData() }
         .values
         .groupBy { it.instant.atZone(ZoneId.of(timezone)).toLocalDate() }
-        .mapNotNull { (localDate, hourToData) ->
-            hourToData
-                .filter {
-                    sunsetRise[localDate]?.let { sunsetRise -> it.instant in sunsetRise } ?: true
-                }
-                .filter(filter::invoke)
-                .let {
-                    if (it.size >= filter.hoursOfMatchingConditions)
-                        DayData(date = localDate, hoursData = it)
-                    else
-                        null
-                }
+        .filter(
+            sunsetRise = getSunsetRise(timezone),
+            filter = filter
+        )
+
+private fun OpenMeteoResponse.getSunsetRise(timezone: String) =
+    daily.transpose()
+        .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
+        .mapValues { (_, map) -> map.toSunsetRise() }
+
+fun Map<LocalDate, List<HourData>>.filter(
+    sunsetRise: Map<LocalDate, SunsetRise>,
+    filter: Filter
+) = mapNotNull { (localDate, hourToData) ->
+    hourToData
+        .filter {
+            sunsetRise[localDate]?.let { sunsetRise -> it.instant in sunsetRise } ?: true
+        }
+        .filter { it in filter }
+        .let {
+            if (it.size >= filter.hoursOfMatchingConditions)
+                DayData(date = localDate, hoursData = it)
+            else
+                null
         }
 }
 
-private operator fun Filter.invoke(hourData: HourData): Boolean =
+operator fun Filter.contains(hourData: HourData) =
     hourData.run {
         val windspeed10m = windspeed10m
         val winddirection10m = winddirection10m
@@ -93,7 +101,7 @@ private operator fun Filter.invoke(hourData: HourData): Boolean =
         windspeed10m != null &&
                 windgusts10m != null &&
                 windspeed10m in minWindSpeed..maxWindSpeed &&
-                windgusts10m-windspeed10m <= maxGustSpeedOntop &&
+                windgusts10m - windspeed10m <= maxGustSpeedOntop &&
                 windDirections?.let { winddirection10m != null && winddirection10m in it } ?: true
     }
 
