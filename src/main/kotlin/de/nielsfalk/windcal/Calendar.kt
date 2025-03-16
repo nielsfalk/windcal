@@ -27,36 +27,78 @@ fun List<VEvent>.toIcal(): String {
     }).go()
 }
 
-fun DayData.summery(spotName: String): String {
-    val windspeed10m = hoursData.average { it.windspeed10m }
-    val windgusts10m = hoursData.average { it.windgusts10m }
-    val temperature2m = hoursData.average { it.temperature2m }
-    val rain = hoursData.average { it.rain }
-    val winddirection10m = hoursData.mapNotNull { it.winddirection10m?.arrow }
-        .joinToString(separator = "")
-        .toSet()
-        .joinToString(separator = "")
-    return "$spotName💨$windspeed10m($windgusts10m)${winddirection10m}🌡${temperature2m}°☔️$rain%⏱${hoursData.size}"
-}
+fun DayData.summery(spotName: String): String =
+    listOf(
+        spotName,
+        formatWindSpeed(
+            average { it.windspeed10m },
+            average { it.windgusts10m },
+            *hoursData.mapNotNull { it.winddirection10m }.toTypedArray<WindDirection>()
+        ),
+        formatTemperature(average { it.temperature2m }),
+        formatRain(average { it.rain }),
+        "⏱${hoursData.size}"
+    ).joinToString(separator = " ")
 
-private fun <E> List<E>.average(function: (E) -> Double?) =
-    mapNotNull { function(it) }
-    .average()
-    .format()
+private fun DayData.average(function: (HourData) -> Double?) =
+    hoursData.mapNotNull { function(it) }
+        .average()
 
 private fun Double.format() = String.format(Locale.US, "%.0f", this)
 
 fun DayData.description(): String = hoursData.joinToString(separator = "\n") { it.description() }
 
-private fun HourData.description(): String {
-    val hour = instant.atZone(ZoneId.of("Europe/Berlin")).hour
-    val windspeed10m1 = windspeed10m?.format()
-    val windgusts10m1 = windgusts10m?.format()
-    val winddirection10m = winddirection10m?.arrow
-    val temperature2m1 = temperature2m?.format()
-    val rain1 = rain?.format()
-    return "$hour💨$windspeed10m1($windgusts10m1)${winddirection10m}🌡${temperature2m1}°☔️$rain1%"
-}
+private fun HourData.description(): String =
+    listOf(
+        String.format("%02d:00", instant.atZone(ZoneId.of("Europe/Berlin")).hour),
+        formatWindSpeed(windspeed10m, windgusts10m, winddirection10m),
+        formatTemperature(temperature2m),
+        formatRain(rain)
+    ).joinToString(separator = " ")
+
+fun formatRain(probability: Double?): String =
+    when {
+        null == probability -> ""
+        probability <= 10 -> "☀️"
+        probability <= 30 -> "🌤${probability.format()}%"
+        probability <= 50 -> "🌥️${probability.format()}%"
+        probability <= 70 -> "🌦️${probability.format()}%"
+        else -> "🌧️${probability.format()}%"
+    }
+
+fun formatWindSpeed(
+    knots: Double?,
+    windGusts: Double?,
+    vararg windDirections: WindDirection?
+): String =
+    when {
+        null == knots -> ""
+        knots < 1 -> "💤"
+        knots <= 5 -> "🍃"
+        knots <= 10 -> "🌬️"
+        knots <= 20 -> "💨"
+        knots <= 30 -> "🌪️"
+        knots <= 40 -> "🌊"
+        else -> "🌀"
+    } +
+            "${knots?.format()}(${windGusts?.format()})" +
+            if (windDirections.size == 1) windDirections.first()?.arrow
+            else windDirections.filterNotNull()
+                .flatMap { it.arrow.toList() }
+                .toSet()
+                .joinToString(separator = "")
+
+fun formatTemperature(temperature: Double?): String =
+    when {
+        null == temperature -> ""
+        temperature < -10 -> "❄️"
+        temperature in -10.0..0.0 -> "🥶"
+        temperature in 1.0..10.0 -> "🧥"
+        temperature in 11.0..20.0 -> "🌤️"
+        temperature in 21.0..30.0 -> "☀️"
+        temperature in 31.0..40.0 -> "🥵"
+        else -> "🔥"
+    } + "${temperature?.format()}°"
 
 private fun LocalDate.toDate() =
     Calendar.getInstance() //default timezone like biweekly.util.ICalDate.ICalDate() is expecting it
