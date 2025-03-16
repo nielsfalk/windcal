@@ -3,6 +3,7 @@ package de.nielsfalk.windcal
 import biweekly.ICalendar
 import biweekly.component.VEvent
 import biweekly.property.Description
+import biweekly.property.ProductId
 import biweekly.property.Summary
 import de.nielsfalk.windcal.domain.EventData
 import de.nielsfalk.windcal.domain.filter
@@ -43,6 +44,7 @@ private fun EventData.toVEvent(): VEvent =
 
 fun List<EventData>.toIcal(): String =
     biweekly.Biweekly.write(ICalendar().apply {
+        productId = ProductId("PRODID:-//Niels Falk//windcal 0.1//EN")
         forEach { addEvent(it.toVEvent()) }
     }).go()
 
