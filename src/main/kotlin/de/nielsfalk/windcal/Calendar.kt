@@ -4,8 +4,27 @@ import biweekly.ICalendar
 import biweekly.component.VEvent
 import biweekly.property.Description
 import biweekly.property.Summary
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
 import java.util.*
+
+suspend fun fetchCalendar(timezone: String) =
+    coroutineScope {
+        spots.map {
+            async {
+                forecast(
+                    spot = it,
+                    timezone = timezone
+                )
+                    .toIcalEvents(spotName = it.name)
+            }
+        }
+            .awaitAll()
+            .flatten()
+            .toIcal()
+    }
 
 fun List<DayData>.toIcalEvents(
     spotName: String

@@ -41,5 +41,5 @@ tasks.withType<Test>().configureEach {
 }
 
 application {
-    mainClass.set("de.nielsfalk.windcal.ApplicationKt")
+    mainClass.set("de.nielsfalk.windcal.server.ApplicationKt")
 }

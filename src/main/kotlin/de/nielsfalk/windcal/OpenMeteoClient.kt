@@ -61,49 +61,22 @@ data class OpenMeteoResponse(
 fun OpenMeteoResponse.toDayDataList(
     filter: Filter,
     timezone: String = "Europe/Berlin"
-): List<DayData> =
-    hourly.transpose()
+): List<DayData> {
+    val groupBy: Map<LocalDate, List<HourData>> = hourly.transpose()
         .mapValues { it.toHourData() }
         .values
         .groupBy { it.instant.atZone(ZoneId.of(timezone)).toLocalDate() }
+    return groupBy
         .filter(
             sunsetRise = getSunsetRise(timezone),
             filter = filter
         )
+}
 
 private fun OpenMeteoResponse.getSunsetRise(timezone: String) =
     daily.transpose()
         .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }
-
-fun Map<LocalDate, List<HourData>>.filter(
-    sunsetRise: Map<LocalDate, SunsetRise>,
-    filter: Filter
-) = mapNotNull { (localDate, hourToData) ->
-    hourToData
-        .filter {
-            sunsetRise[localDate]?.let { sunsetRise -> it.instant in sunsetRise } ?: true
-        }
-        .filter { it in filter }
-        .let {
-            if (it.size >= filter.hoursOfMatchingConditions)
-                DayData(date = localDate, hoursData = it)
-            else
-                null
-        }
-}
-
-operator fun Filter.contains(hourData: HourData) =
-    hourData.run {
-        val windspeed10m = windspeed10m
-        val winddirection10m = winddirection10m
-        val windgusts10m = windgusts10m
-        windspeed10m != null &&
-                windgusts10m != null &&
-                windspeed10m in minWindSpeed..maxWindSpeed &&
-                windgusts10m - windspeed10m <= maxGustSpeedOntop &&
-                windDirections?.let { winddirection10m != null && winddirection10m in it } ?: true
-    }
 
 private fun Map<String, Array<Double?>>.transpose(
 ): Map<Instant, Map<String, Double>> =
@@ -130,20 +103,6 @@ private fun Map.Entry<Instant, Map<String, Double>>.toHourData() =
         windgusts10m = value["windgusts_10m"]
     )
 
-data class HourData(
-    val temperature2m: Double?,
-    val windspeed10m: Double?,
-    val winddirection10m: WindDirection?,
-    val relativehumidity2m: Double?,
-    val rain: Double?,
-    val windgusts10m: Double?,
-    val instant: Instant
-)
-
-data class DayData(
-    val date: LocalDate,
-    val hoursData: List<HourData>
-)
 
 private fun Map<String, Double>.toSunsetRise() =
     mapValues { Instant.ofEpochSecond(it.value.toLong()) }
