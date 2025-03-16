@@ -4,6 +4,9 @@ import biweekly.ICalendar
 import biweekly.component.VEvent
 import biweekly.property.Description
 import biweekly.property.Summary
+import de.nielsfalk.windcal.domain.DayData
+import de.nielsfalk.windcal.domain.filter
+import de.nielsfalk.windcal.domain.spots
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -18,6 +21,7 @@ suspend fun fetchCalendar(timezone: String) =
                     spot = it,
                     timezone = timezone
                 )
+                    .filter(it.filter)
                     .toIcalEvents(spotName = it.name)
             }
         }

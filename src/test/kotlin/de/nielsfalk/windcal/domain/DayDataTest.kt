@@ -1,11 +1,8 @@
-package de.nielsfalk.windcal
+package de.nielsfalk.windcal.domain
 
-import de.nielsfalk.windcal.WindDirection.*
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.Json
-import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -13,7 +10,7 @@ import java.time.ZoneId
 class DayDataTest : FreeSpec({
     "filter" - {
         val filter = Filter(
-            windDirections = listOf(S, W),
+            windDirections = listOf(WindDirection.S, WindDirection.W),
             minWindSpeed = 12.0,
             maxWindSpeed = 40.0,
             maxGustSpeedOntop = 15.0,
@@ -23,7 +20,7 @@ class DayDataTest : FreeSpec({
         val validHourData = HourData(
             temperature2m = 13.0,
             windspeed10m = 20.0,
-            winddirection10m = S,
+            winddirection10m = WindDirection.S,
             relativehumidity2m = 10.0,
             rain = 10.0,
             windgusts10m = 22.0,
@@ -31,20 +28,18 @@ class DayDataTest : FreeSpec({
         )
         "hoursOfMatchingConditions" - {
             "valid" {
-                mapOf(LocalDate.now() to listOf(validHourData, validHourData))
-                    .filter(mapOf(), filter) shouldHaveSize 1
+                dayData(listOf(validHourData, validHourData))
+                    .filter(filter) shouldHaveSize 1
             }
             "invalid" {
-                mapOf(LocalDate.now() to listOf(validHourData))
-                    .filter(mapOf(), filter) shouldHaveSize 0
+                dayData(listOf(validHourData)).filter(filter) shouldHaveSize 0
 
-                mapOf(
-                    LocalDate.now() to listOf(
+                dayData(
+                    listOf(
                         validHourData,
                         validHourData.copy(windspeed10m = 5.0)
                     )
-                )
-                    .filter(mapOf(), filter) shouldHaveSize 0
+                ).filter(filter) shouldHaveSize 0
             }
         }
         "Filter.contains" - {
@@ -56,7 +51,7 @@ class DayDataTest : FreeSpec({
                 validHourData.copy(windspeed10m = 11.0),
                 validHourData.copy(windspeed10m = 41.0),
                 validHourData.copy(windgusts10m = validHourData.windspeed10m!! + filter.maxGustSpeedOntop + 1),
-                validHourData.copy(winddirection10m = SSE)
+                validHourData.copy(winddirection10m = WindDirection.SSE)
             ).forEach {
                 "invalid $it" {
                     (it in filter) shouldBe false
@@ -64,14 +59,13 @@ class DayDataTest : FreeSpec({
             }
         }
         "SunsetRise.contains" - {
-            val sunsetRise = SunsetRise(
-                sunrise = LocalDate.now().atTime(8, 23, 44).atZone(ZoneId.of("Europe/Berlin"))
-                    .toInstant(),
-                sunset = LocalDate.now().atTime(18, 13, 44).atZone(ZoneId.of("Europe/Berlin"))
-                    .toInstant()
-            )
+            val sunsetRise: Pair<Instant, Instant> =
+                LocalDate.now().atTime(8, 23, 44)
+                    .atZone(ZoneId.of("Europe/Berlin")).toInstant() to
+                        LocalDate.now().atTime(18, 13, 44)
+                            .atZone(ZoneId.of("Europe/Berlin"))
+                            .toInstant()
             (8..18).forEach {
-
                 "$it in sunsetRise" {
                     val hour =
                         LocalDate.now().atTime(it, 33, 44).atZone(ZoneId.of("Europe/Berlin"))
@@ -92,3 +86,6 @@ class DayDataTest : FreeSpec({
         }
     }
 })
+
+private fun dayData(listOf: List<HourData>): List<DayData> =
+    listOf(DayData(LocalDate.now(), listOf))

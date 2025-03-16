@@ -1,5 +1,9 @@
 package de.nielsfalk.windcal
 
+import de.nielsfalk.windcal.domain.DayData
+import de.nielsfalk.windcal.domain.HourData
+import de.nielsfalk.windcal.domain.Spot
+import de.nielsfalk.windcal.domain.WindDirection
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -13,11 +17,13 @@ import kotlinx.serialization.json.JsonNamingStrategy
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit.HOURS
 
-suspend fun forecast(spot: Spot, timezone: String = "Europe/Berlin") =
-    queryForecast(spot.latitude, spot.longitude, timezone)
-        .toDayDataList(spot.filter, timezone)
+suspend fun forecast(
+    spot: Spot,
+    timezone: String
+) = queryForecast(spot.latitude, spot.longitude, timezone)
+    .toDayDataList(timezone)
+
 
 @OptIn(ExperimentalSerializationApi::class)
 suspend fun queryForecast(
@@ -58,22 +64,26 @@ data class OpenMeteoResponse(
     val hourly: Map<String, Array<Double?>> = mapOf(),
 )
 
-fun OpenMeteoResponse.toDayDataList(
-    filter: Filter,
-    timezone: String = "Europe/Berlin"
-): List<DayData> {
-    val groupBy: Map<LocalDate, List<HourData>> = hourly.transpose()
+fun OpenMeteoResponse.toDayDataList(timezone: String = "Europe/Berlin"): List<DayData> =
+    hourly.transpose()
         .mapValues { it.toHourData() }
         .values
         .groupBy { it.instant.atZone(ZoneId.of(timezone)).toLocalDate() }
-    return groupBy
-        .filter(
-            sunsetRise = getSunsetRise(timezone),
-            filter = filter
-        )
-}
+        .toDayData(getSunsetRise(timezone))
 
-private fun OpenMeteoResponse.getSunsetRise(timezone: String) =
+fun Map<LocalDate, List<HourData>>.toDayData(
+    sunsetRise: Map<LocalDate, SunsetRise>
+): List<DayData> =
+    map { (localDate, hourToData) ->
+        DayData(
+            date = localDate,
+            hoursData = hourToData,
+            sunrise = sunsetRise[localDate]?.sunrise,
+            sunset = sunsetRise[localDate]?.sunset
+        )
+    }
+
+fun OpenMeteoResponse.getSunsetRise(timezone: String = "Europe/Berlin") =
     daily.transpose()
         .mapKeys { (instant, _) -> instant.atZone(ZoneId.of(timezone)).toLocalDate() }
         .mapValues { (_, map) -> map.toSunsetRise() }
@@ -103,7 +113,6 @@ private fun Map.Entry<Instant, Map<String, Double>>.toHourData() =
         windgusts10m = value["windgusts_10m"]
     )
 
-
 private fun Map<String, Double>.toSunsetRise() =
     mapValues { Instant.ofEpochSecond(it.value.toLong()) }
         .let {
@@ -114,6 +123,3 @@ private fun Map<String, Double>.toSunsetRise() =
         }
 
 data class SunsetRise(val sunrise: Instant, val sunset: Instant)
-
-operator fun SunsetRise.contains(hour: Instant) =
-    hour.truncatedTo(HOURS) in sunrise.truncatedTo(HOURS)..sunset.truncatedTo(HOURS)

@@ -1,6 +1,8 @@
 package de.nielsfalk.windcal
 
-import de.nielsfalk.windcal.WindDirection.*
+import de.nielsfalk.windcal.domain.Filter
+import de.nielsfalk.windcal.domain.WindDirection.*
+import de.nielsfalk.windcal.domain.filter
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
@@ -9,12 +11,15 @@ import java.time.LocalDate
 
 class OpenMeteoClientTest : FreeSpec({
     "forecast .toDayDataList" {
-        Json.decodeFromString<OpenMeteoResponse>(forecast)
-            .toDayDataList(
-                Filter(
-                    windDirections = listOf(SSW, SW, WSW, W, WNW, NW, NNW)
-                )
-            ).map { it.date to it.hoursData.size } shouldBe
+        Json.decodeFromString<OpenMeteoResponse>(forecast).run {
+            val timezone = "Europe/Berlin"
+            toDayDataList(timezone)
+                .filter(
+                    filter = Filter(
+                        windDirections = listOf(SSW, SW, WSW, W, WNW, NW, NNW)
+                    )
+                ).map { it.date to it.hoursData.size }
+        } shouldBe
                 listOf(
                     LocalDate.of(2025, 3, 16) to 8,
                     LocalDate.of(2025, 3, 18) to 13,

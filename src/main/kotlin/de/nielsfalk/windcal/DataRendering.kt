@@ -1,8 +1,10 @@
 package de.nielsfalk.windcal
 
+import de.nielsfalk.windcal.domain.DayData
+import de.nielsfalk.windcal.domain.HourData
+import de.nielsfalk.windcal.domain.WindDirection
 import java.time.ZoneId
 import java.util.*
-
 
 fun DayData.summery(spotName: String): String =
     listOf(

@@ -1,6 +1,8 @@
 package de.nielsfalk.windcal
 
-import de.nielsfalk.windcal.WindDirection.*
+import de.nielsfalk.windcal.domain.WindDirection.*
+import de.nielsfalk.windcal.domain.DayData
+import de.nielsfalk.windcal.domain.HourData
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
