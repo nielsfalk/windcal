@@ -1,39 +1,44 @@
-package de.nielsfalk.windcal
+package de.nielsfalk.windcal.domain
 
-import de.nielsfalk.windcal.domain.DayData
-import de.nielsfalk.windcal.domain.HourData
-import de.nielsfalk.windcal.domain.WindDirection
+import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
 
-fun DayData.summery(spotName: String): String =
-    listOf(
-        spotName,
-        formatWindSpeed(
-            average { it.windspeed10m },
-            average { it.windgusts10m },
-            *hoursData.mapNotNull { it.winddirection10m }.toTypedArray<WindDirection>()
-        ),
-        formatTemperature(average { it.temperature2m }),
-        formatRain(average { it.rain }),
-        "⏱${hoursData.size}"
-    ).joinToString(separator = " ")
+data class EventData(
+    val summery: String,
+    val description: String,
+    val date: LocalDate
+)
+
+fun DayData.toEventData(spotName: String) =
+    EventData(
+        summery = listOf(
+            spotName,
+            formatWindSpeed(
+                average { it.windspeed10m },
+                average { it.windgusts10m },
+                *hoursData.mapNotNull { it.winddirection10m }.toTypedArray<WindDirection>()
+            ),
+            formatTemperature(average { it.temperature2m }),
+            formatRain(average { it.rain }),
+            "⏱${hoursData.size}"
+        ).joinToString(separator = " "),
+        description = hoursData.joinToString(separator = "\n") {
+            listOf(
+                String.format("%02d:00", it.instant.atZone(ZoneId.of("Europe/Berlin")).hour),
+                formatWindSpeed(it.windspeed10m, it.windgusts10m, it.winddirection10m),
+                formatTemperature(it.temperature2m),
+                formatRain(it.rain)
+            ).joinToString(separator = " ")
+        },
+        date = date
+    )
 
 private fun DayData.average(function: (HourData) -> Double?) =
     hoursData.mapNotNull { function(it) }
         .average()
 
 private fun Double.format() = String.format(Locale.US, "%.0f", this)
-
-fun DayData.description(): String = hoursData.joinToString(separator = "\n") { it.description() }
-
-private fun HourData.description(): String =
-    listOf(
-        String.format("%02d:00", instant.atZone(ZoneId.of("Europe/Berlin")).hour),
-        formatWindSpeed(windspeed10m, windgusts10m, winddirection10m),
-        formatTemperature(temperature2m),
-        formatRain(rain)
-    ).joinToString(separator = " ")
 
 fun formatRain(probability: Double?): String =
     when {

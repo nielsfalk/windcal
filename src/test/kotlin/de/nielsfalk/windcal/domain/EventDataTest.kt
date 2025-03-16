@@ -1,16 +1,14 @@
-package de.nielsfalk.windcal
+package de.nielsfalk.windcal.domain
 
 import de.nielsfalk.windcal.domain.WindDirection.*
-import de.nielsfalk.windcal.domain.DayData
-import de.nielsfalk.windcal.domain.HourData
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 import java.time.LocalDate
 
-class DataFormattingTest : FreeSpec({
-    "create description" {
-        aDayData.description() shouldBe """
+class EventDataTest : FreeSpec({
+    "description" {
+        eventData.description shouldBe """
             06:00 💨12(18)→ 🧥3° ☀️
             07:00 💨14(20)→ 🧥4° ☀️
             08:00 💨15(21)→ 🧥4° ☀️
@@ -22,12 +20,12 @@ class DataFormattingTest : FreeSpec({
         """.trimIndent()
     }
 
-    "create summary" {
-        aDayData.summery("Wiek") shouldBe "Wiek 💨14(22)→↘ 🧥4° ☀️ ⏱8"
+    "summary" {
+        eventData.summery shouldBe "Wiek 💨14(22)→↘ 🧥4° ☀️ ⏱8"
     }
 })
 
-val aDayData = DayData(
+val eventData = DayData(
     date = LocalDate.of(2025, 3, 16),
     hoursData = listOf(
         HourData(
@@ -103,4 +101,4 @@ val aDayData = DayData(
             instant = Instant.parse("2025-03-16T12:00:00Z")
         )
     )
-)
+).toEventData("Wiek")

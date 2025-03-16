@@ -16,7 +16,6 @@ fun Application.configureRouting() {
             call.respond(NoContent)
         }
         get("/wind.ics") {
-
             call.respondText(
                 text = fetchCalendar(call.queryParameters["timezone"] ?: "Europe/Berlin"),
                 contentType = ContentType("text", "calendar")
