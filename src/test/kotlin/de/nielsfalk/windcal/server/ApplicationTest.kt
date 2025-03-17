@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.server.testing.*
 
@@ -22,6 +23,13 @@ class ApplicationTest : FreeSpec({
             client.get("/").apply {
                 status shouldBe OK
                 body<String>() shouldStartWith "<!"
+            }
+        }
+    }
+    "head /" {
+        withApp{
+            client.head("/").apply {
+                status shouldBe NoContent
             }
         }
     }
