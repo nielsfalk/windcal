@@ -1,5 +1,7 @@
 package de.nielsfalk.windcal.server
 
+import de.nielsfalk.windcal.converter.SpotConverter
+import de.nielsfalk.windcal.converter.SpotConverter.toSpots
 import de.nielsfalk.windcal.service.CalendarService.fetchCalendar
 import de.nielsfalk.windcal.service.HtmlService.indexHtml
 import io.ktor.http.*
@@ -22,7 +24,10 @@ fun Application.configureRouting() {
         }
         get("/wind.ics") {
             call.respondText(
-                text = fetchCalendar(call.queryParameters["timezone"] ?: "Europe/Berlin"),
+                text = fetchCalendar(
+                    spots = call.queryParameters.toSpots(),
+                    timezone = call.queryParameters["timezone"] ?: "Europe/Berlin"
+                ),
                 contentType = ContentType("text", "calendar")
             )
         }

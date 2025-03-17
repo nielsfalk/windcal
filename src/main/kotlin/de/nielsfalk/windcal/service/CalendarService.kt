@@ -2,15 +2,15 @@ package de.nielsfalk.windcal.service
 
 import de.nielsfalk.windcal.client.forecast
 import de.nielsfalk.windcal.converter.CalendarConverter.toIcal
+import de.nielsfalk.windcal.domain.Spot
 import de.nielsfalk.windcal.domain.filter
-import de.nielsfalk.windcal.domain.spots
 import de.nielsfalk.windcal.domain.toEventData
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 object CalendarService {
-    suspend fun fetchCalendar(timezone: String) =
+    suspend fun fetchCalendar(timezone: String, spots: List<Spot>) =
         coroutineScope {
             spots.map { spot ->
                 async {
