@@ -1,6 +1,6 @@
 package de.nielsfalk.windcal.converter
 
-import de.nielsfalk.windcal.*
+import de.nielsfalk.windcal.client.OpenMeteoResponse
 import de.nielsfalk.windcal.domain.DayData
 import de.nielsfalk.windcal.domain.HourData
 import de.nielsfalk.windcal.domain.WindDirection

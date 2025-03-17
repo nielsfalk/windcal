@@ -1,4 +1,4 @@
-package de.nielsfalk.windcal
+package de.nielsfalk.windcal.client
 
 import de.nielsfalk.windcal.converter.ForecastConverter.toDayDataList
 import de.nielsfalk.windcal.domain.Spot
