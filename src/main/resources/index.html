@@ -10,45 +10,45 @@
 <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-lg">
   <h2 class="text-xl font-bold mb-4">Wind Forecast Calender</h2>
 
-  <label class="block">Spot Name:</label>
+  <label for="spotname" class="block">Spot Name:</label>
   <input type="text" id="spotname" class="w-full border p-2 rounded mb-2" required>
   <p id="spotnameError" class="text-red-500 text-sm hidden">Spot Name is required.</p>
 
-  <label class="block">Latitude:</label>
+  <label for="latitude" class="block">Latitude:</label>
   <input type="text" id="latitude" class="w-full border p-2 rounded mb-2" required>
   <p id="latitudeError" class="text-red-500 text-sm hidden">Latitude must be a valid number.</p>
 
-  <label class="block">Longitude:</label>
+  <label for="longitude" class="block">Longitude:</label>
   <input type="text" id="longitude" class="w-full border p-2 rounded mb-4" required>
   <p id="longitudeError" class="text-red-500 text-sm hidden">Longitude must be a valid number.</p>
 
   <h3 class="font-semibold">Wind Directions:</h3>
   <div class="grid grid-cols-4 gap-2 mb-4" id="windDirections"></div>
 
-  <label class="block">Min Wind Speed (knots): <span id="minWindSpeedValue">12.0</span></label>
+  <label for="minWindSpeed" class="block">Min Wind Speed (knots): <span id="minWindSpeedValue">12.0</span></label>
   <input type="range" id="minWindSpeed" min="3.0" max="25.0" value="12.0" step="0.1" class="w-full mb-4" oninput="minWindSpeedValue.textContent = this.value">
 
-  <label class="block">Max Wind Speed (knots): <span id="maxWindSpeedValue">40.0</span></label>
+  <label for="maxWindSpeed" class="block">Max Wind Speed (knots): <span id="maxWindSpeedValue">40.0</span></label>
   <input type="range" id="maxWindSpeed" min="10.0" max="70.0" value="40.0" step="0.1" class="w-full mb-4" oninput="maxWindSpeedValue.textContent = this.value">
 
-  <label class="block">Max Gust Speed on Top (knots): <span id="maxGustSpeedValue">15.0</span></label>
-  <input type="range" id="maxGustSpeed" min="5.0" max="30.0" value="15.0" step="0.1" class="w-full mb-4" oninput="maxGustSpeedValue.textContent = this.value">
+  <label for="maxGustSpeedOntop" class="block">Max Gust Speed on Top (knots): <span id="maxGustSpeedOntopValue">15.0</span></label>
+  <input type="range" id="maxGustSpeedOntop" min="5.0" max="30.0" value="15.0" step="0.1" class="w-full mb-4" oninput="maxGustSpeedOntopValue.textContent = this.value">
 
-  <label class="block">Hours of Matching Conditions: <span id="hoursValue">2</span></label>
+  <label for="hours" class="block">Hours of Matching Conditions: <span id="hoursValue">2</span></label>
   <input type="range" id="hours" min="1" max="10" value="2" step="1" class="w-full mb-4" oninput="hoursValue.textContent = this.value">
 
   <button onclick="addData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Add</button>
 
-  <h3 class="font-semibold mt-4">Stored Data:</h3>
+  <h3 class="font-semibold mt-4">Spots:</h3>
   <div id="chipContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
-  <label class="block">Generated Link:</label>
+  <label for="outputData" class="block">Generated Link:</label>
   <textarea id="outputData" readonly class="w-full border p-2 rounded cursor-pointer" onclick="copyToClipboard()"></textarea>
   <p id="copyHint" class="text-green-500 hidden">Copied!</p>
+  <button onclick="resetData()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full mt-2">Reset</button>
 </div>
 
 <script>
-  let dataArray = [];
   document.addEventListener("DOMContentLoaded", function() {
     let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
     let windDirectionsContainer = document.getElementById("windDirections");
@@ -59,6 +59,8 @@
       label.innerHTML = `<input type='checkbox' value='${dir}' class='form-checkbox' checked><span>${dir}</span>`;
       windDirectionsContainer.appendChild(label);
     });
+
+    loadStoredData();
   });
 
   function addData() {
@@ -74,14 +76,17 @@
 
     let minWindSpeed = document.getElementById("minWindSpeed").value;
     let maxWindSpeed = document.getElementById("maxWindSpeed").value;
-    let maxGustSpeed = document.getElementById("maxGustSpeed").value;
+    let maxGustSpeedOntop = document.getElementById("maxGustSpeedOntop").value;
     let hours = document.getElementById("hours").value;
     let selectedWindDirections = Array.from(document.querySelectorAll("#windDirections input:checked"))
-    .map(input => input.value).join('-');
+      .map(input => input.value).join('-');
 
-    let entry = { spotname, latitude, longitude, minWindSpeed, maxWindSpeed, maxGustSpeed, hours, "windDirections": selectedWindDirections };
+    let entry = { spotname, latitude, longitude, minWindSpeed, maxWindSpeed, maxGustSpeedOntop, hours, "windDirections": selectedWindDirections };
 
-    dataArray.push(entry);
+    let storedData = JSON.parse(localStorage.getItem("windData")) || [];
+    storedData.push(entry);
+    localStorage.setItem("windData", JSON.stringify(storedData));
+
     updateChips();
     updateOutput();
   }
@@ -89,8 +94,9 @@
   function updateChips() {
     const chipContainer = document.getElementById("chipContainer");
     chipContainer.innerHTML = "";
+    let storedData = JSON.parse(localStorage.getItem("windData")) || [];
 
-    dataArray.forEach((data, index) => {
+    storedData.forEach((data, index) => {
       let chip = document.createElement("div");
       chip.className = "flex items-center bg-gray-300 px-3 py-1 rounded-full";
       chip.innerHTML = `${data.spotname} <span class='ml-2 cursor-pointer text-red-600' onclick='removeEntry(${index})'>✖</span>`;
@@ -99,12 +105,22 @@
   }
 
   function updateOutput() {
-    let params = dataArray.map(data => new URLSearchParams(data).toString()).join('&');
-    document.getElementById("outputData").value = `!!baseurl!!?${params}`;
+    let storedData = JSON.parse(localStorage.getItem("windData")) || [];
+    let params = storedData.map(data => new URLSearchParams(data).toString()).join('&');
+    document.getElementById("outputData").value = `/*BASE_URL*/?${params}`;
   }
 
   function removeEntry(index) {
-    dataArray.splice(index, 1);
+    let storedData = JSON.parse(localStorage.getItem("windData")) || [];
+    storedData.splice(index, 1);
+    localStorage.setItem("windData", JSON.stringify(storedData));
+    updateChips();
+    updateOutput();
+  }
+
+  function resetData() {
+    localStorage.removeItem("windData");
+    loadStoredData()
     updateChips();
     updateOutput();
   }
@@ -117,6 +133,15 @@
     let copyHint = document.getElementById("copyHint");
     copyHint.classList.remove("hidden");
     setTimeout(() => copyHint.classList.add("hidden"), 3000);
+  }
+
+  function loadStoredData() {
+    if (!localStorage.getItem("windData")) {
+      let initialData = [/*INITIAL_DATA*/];
+      localStorage.setItem("windData", JSON.stringify(initialData));
+    }
+    updateChips();
+    updateOutput();
   }
 </script>
 </body>
