@@ -25,32 +25,95 @@
   <h3 class="font-semibold">Wind Directions:</h3>
   <div class="grid grid-cols-4 gap-2 mb-4" id="windDirections"></div>
 
-  <label for="minWindSpeed" class="block">Min Wind Speed (knots): <span id="minWindSpeedValue">12.0</span></label>
-  <input type="range" id="minWindSpeed" min="3.0" max="25.0" value="12.0" step="0.1" class="w-full mb-4" oninput="minWindSpeedValue.textContent = this.value">
+  <label for="minWindSpeed" class="block">Min Wind Speed (knots): <span
+      id="minWindSpeedValue">12.0</span></label>
+  <input type="range" id="minWindSpeed" min="3.0" max="25.0" value="12.0" step="0.1"
+         class="w-full mb-4" oninput="minWindSpeedValue.textContent = this.value">
 
-  <label for="maxWindSpeed" class="block">Max Wind Speed (knots): <span id="maxWindSpeedValue">40.0</span></label>
-  <input type="range" id="maxWindSpeed" min="10.0" max="70.0" value="40.0" step="0.1" class="w-full mb-4" oninput="maxWindSpeedValue.textContent = this.value">
+  <label for="maxWindSpeed" class="block">Max Wind Speed (knots): <span
+      id="maxWindSpeedValue">40.0</span></label>
+  <input type="range" id="maxWindSpeed" min="10.0" max="70.0" value="40.0" step="0.1"
+         class="w-full mb-4" oninput="maxWindSpeedValue.textContent = this.value">
 
-  <label for="maxGustSpeedOntop" class="block">Max Gust Speed on Top (knots): <span id="maxGustSpeedOntopValue">15.0</span></label>
-  <input type="range" id="maxGustSpeedOntop" min="5.0" max="30.0" value="15.0" step="0.1" class="w-full mb-4" oninput="maxGustSpeedOntopValue.textContent = this.value">
+  <label for="maxGustSpeedOntop" class="block">Max Gust Speed on Top (knots): <span
+      id="maxGustSpeedOntopValue">15.0</span></label>
+  <input type="range" id="maxGustSpeedOntop" min="5.0" max="30.0" value="15.0" step="0.1"
+         class="w-full mb-4" oninput="maxGustSpeedOntopValue.textContent = this.value">
 
-  <label for="hours" class="block">Hours of Matching Conditions: <span id="hoursValue">2</span></label>
-  <input type="range" id="hours" min="1" max="10" value="2" step="1" class="w-full mb-4" oninput="hoursValue.textContent = this.value">
+  <label for="hours" class="block">Hours of Matching Conditions: <span
+      id="hoursValue">2</span></label>
+  <input type="range" id="hours" min="1" max="10" value="2" step="1" class="w-full mb-4"
+         oninput="hoursValue.textContent = this.value">
 
-  <button onclick="addData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Add</button>
+  <button onclick="addData()"
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Add
+  </button>
 
   <h3 class="font-semibold mt-4">Spots:</h3>
   <div id="chipContainer" class="flex flex-wrap gap-2 mb-4"></div>
 
   <label for="outputData" class="block">Generated Link:</label>
-  <textarea id="outputData" readonly class="w-full border p-2 rounded cursor-pointer" onclick="copyToClipboard()"></textarea>
+  <textarea id="outputData" readonly class="w-full border p-2 rounded cursor-pointer"
+            onclick="copyToClipboard()"></textarea>
   <p id="copyHint" class="text-green-500 hidden">Copied!</p>
-  <button onclick="resetData()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full mt-2">Reset</button>
+  <div class="mt-6 bg-gray-50 p-4 rounded-lg border">
+    <h3 class="text-lg font-semibold">How to Subscribe to the Wind Forecast Calendar</h3>
+
+    <h4 class="mt-2 font-semibold">Step 1: Generate the Calendar Link</h4>
+    <ul class="list-disc pl-5 text-sm">
+      <li>Fill in the required details (Spot Name, Latitude, Longitude, etc.).</li>
+      <li>Click the <b>Add</b> button.</li>
+      <li>Copy the generated link by clicking inside the text box above.</li>
+    </ul>
+
+    <h4 class="mt-3 font-semibold">Step 2: Subscribe to the Calendar</h4>
+
+    <h5 class="mt-2 font-semibold">For iOS (iPhone & iPad)</h5>
+    <ul class="list-disc pl-5 text-sm">
+      <li>Go to <b>Settings</b> > <b>Calendar</b> > <b>Accounts</b>.</li>
+      <li>Tap <b>Add Account</b> > <b>Other</b> > <b>Add Subscribed Calendar</b>.</li>
+      <li>Paste the copied link in the <b>Server</b> field and tap <b>Next</b>, then <b>Save</b>.
+      </li>
+    </ul>
+
+    <h5 class="mt-2 font-semibold">For Android (Google Calendar App)</h5>
+    <ul class="list-disc pl-5 text-sm">
+      <li>Go to <a href="https://calendar.google.com/" class="text-blue-600 underline">Google
+        Calendar</a>.
+      </li>
+      <li>Click the <b>+</b> next to <b>Other Calendars</b> and select <b>From URL</b>.</li>
+      <li>Paste the copied link and click <b>Add Calendar</b>.</li>
+    </ul>
+
+    <h5 class="mt-2 font-semibold">For Google Calendar (Web)</h5>
+    <ul class="list-disc pl-5 text-sm">
+      <li>Open <a href="https://calendar.google.com/" class="text-blue-600 underline">Google
+        Calendar</a>.
+      </li>
+      <li>Click the <b>+</b> next to <b>Other Calendars</b>, then <b>From URL</b>.</li>
+      <li>Paste the link and click <b>Add Calendar</b>.</li>
+    </ul>
+
+    <h5 class="mt-2 font-semibold">For Mac Calendar (iCal)</h5>
+    <ul class="list-disc pl-5 text-sm">
+      <li>Open the <b>Calendar</b> app.</li>
+      <li>Click <b>File</b> > <b>New Calendar Subscription</b>.</li>
+      <li>Paste the link and click <b>Subscribe</b>, then adjust settings.</li>
+    </ul>
+
+    <p class="mt-3 text-sm">You're all set! Your wind forecast calendar will now update
+      automatically.</p>
+  </div>
+
+  <button onclick="resetData()"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full mt-2">Reset
+  </button>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  document.addEventListener("DOMContentLoaded", function () {
+    let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW",
+      "W", "WNW", "NW", "NNW"];
     let windDirectionsContainer = document.getElementById("windDirections");
 
     directions.forEach(dir => {
@@ -69,19 +132,33 @@
     let longitude = document.getElementById("longitude").value;
 
     document.getElementById("spotnameError").classList.toggle("hidden", !!spotname);
-    document.getElementById("latitudeError").classList.toggle("hidden", !isNaN(parseFloat(latitude)));
-    document.getElementById("longitudeError").classList.toggle("hidden", !isNaN(parseFloat(longitude)));
+    document.getElementById("latitudeError").classList.toggle("hidden",
+        !isNaN(parseFloat(latitude)));
+    document.getElementById("longitudeError").classList.toggle("hidden",
+        !isNaN(parseFloat(longitude)));
 
-    if (!spotname || isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) return;
+    if (!spotname || isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) {
+      return;
+    }
 
     let minWindSpeed = document.getElementById("minWindSpeed").value;
     let maxWindSpeed = document.getElementById("maxWindSpeed").value;
     let maxGustSpeedOntop = document.getElementById("maxGustSpeedOntop").value;
     let hours = document.getElementById("hours").value;
-    let selectedWindDirections = Array.from(document.querySelectorAll("#windDirections input:checked"))
-      .map(input => input.value).join('-');
+    let selectedWindDirections = Array.from(
+        document.querySelectorAll("#windDirections input:checked"))
+    .map(input => input.value).join('-');
 
-    let entry = { spotname, latitude, longitude, minWindSpeed, maxWindSpeed, maxGustSpeedOntop, hours, "windDirections": selectedWindDirections };
+    let entry = {
+      spotname,
+      latitude,
+      longitude,
+      minWindSpeed,
+      maxWindSpeed,
+      maxGustSpeedOntop,
+      hours,
+      "windDirections": selectedWindDirections
+    };
 
     let storedData = JSON.parse(localStorage.getItem("windData")) || [];
     storedData.push(entry);
