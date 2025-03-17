@@ -1,11 +1,12 @@
-package de.nielsfalk.windcal
+package de.nielsfalk.windcal.converter
 
+import de.nielsfalk.windcal.converter.CalendarConverter.toIcal
 import de.nielsfalk.windcal.domain.eventData
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 
-class CalendarTest : FreeSpec({
+class CalendarConverterTest : FreeSpec({
     "toIcal" {
         val ical = listOf(eventData).toIcal()
 
