@@ -47,7 +47,8 @@ object ForecastConverter {
 
     private fun Map<String, Array<Double?>>.transpose(
     ): Map<Instant, Map<String, Double>> =
-        this["time"]!!.mapIndexed { index, value ->
+        if (isEmpty()) mapOf()
+        else this["time"]!!.mapIndexed { index, value ->
             val keysForResult = keys - "time"
             Instant.ofEpochSecond(value!!.toLong()) to
                     keysForResult.mapNotNull { key ->
